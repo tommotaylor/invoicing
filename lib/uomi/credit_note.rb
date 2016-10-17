@@ -11,7 +11,7 @@ module Uomi
         event :issue, transitions_to: :issued
         event :void, transitions_to: :voided
       end
-      
+
       state :issued do
         event :settle, transitions_to: :settled
         event :void, transitions_to: :voided
@@ -37,7 +37,7 @@ module Uomi
       validate(invoice: invoice, amount: self.total)
       invoice.add_credit_transaction(amount: total)
       invoice.save!
-      CreditNoteCreditTransaction.create!(transaction: invoice.transactions.last, credit_note_id: self.id)
+      CreditNoteCreditTransaction.create!(cn_transaction: invoice.transactions.last, credit_note_id: self.id)
     end
 
     def credit(options={})
@@ -52,7 +52,7 @@ module Uomi
     def against_invoice(invoice)
       raise RuntimeError, "You must allocate a credit note against an invoice" if invoice.blank?
       raise RuntimeError, "You must allocate a credit note against an issued invoice" unless invoice.issued?
-      
+
       self.credit_note_invoices << CreditNoteInvoice.new(invoice_id: invoice.id)
       self.buyer = invoice.buyer
       self.seller = invoice.seller
@@ -113,7 +113,7 @@ module Uomi
       invoice.save!
 
       self.add_debit_transaction(amount: options[:amount])
-      CreditNoteCreditTransaction.create!(transaction: invoice.transactions.last, credit_note_id: self.id)
+      CreditNoteCreditTransaction.create!(cn_transaction: invoice.transactions.last, credit_note_id: self.id)
     end
 
     def annul_remaining_amount!
@@ -128,8 +128,8 @@ module Uomi
 
     def reverse_transactions_against_invoice
       credit_note_credit_transactions.each do |cnct|
-        invoice = cnct.transaction.invoice
-        invoice.add_debit_transaction(amount: cnct.transaction.amount)
+        invoice = cnct.cn_transaction.invoice
+        invoice.add_debit_transaction(amount: cnct.cn_transaction.amount)
         invoice.save!
       end
     end

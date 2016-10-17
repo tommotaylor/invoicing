@@ -31,5 +31,7 @@ You can specify a custom invoice number containing the invoice id as follows:
       numbered "CUSTOMREF{id}"
     end
 
-  
-    
+Running the specs
+
+    cp spec/internal/config/database.yml.sample spec/internal/config/database.yml
+    rake spec

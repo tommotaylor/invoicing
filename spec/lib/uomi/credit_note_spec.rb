@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe Uomi::CreditNote do
-  
+
   before(:each) do
     invoice_buyer = Uomi::DebitTransaction.create!
     invoice_seller = Uomi::DebitTransaction.create!
-    
+
     @invoice = Uomi::generate_invoice do
       to invoice_buyer
       from invoice_seller
@@ -44,7 +44,7 @@ describe Uomi::CreditNote do
           against_invoice @invoice
         end
       }.should raise_error(RuntimeError, "You must allocate a credit note against an invoice")
-      
+
     end
 
     context "against an invoice" do
@@ -84,7 +84,7 @@ describe Uomi::CreditNote do
 
       it "should be linked to the credit transaction paid against the invoice" do
         @credit_note.credit_note_credit_transactions.count.should == 1
-        @credit_note.credit_note_credit_transactions.first.transaction.amount.should == @invoice.total
+        @credit_note.credit_note_credit_transactions.first.cn_transaction.amount.should == @invoice.total
       end
 
       it "should be recorded against the invoice" do
@@ -175,7 +175,7 @@ describe Uomi::CreditNote do
 
           it "should know which invoice the credit note has transacted against" do
             t = @credit_note.credit_note_credit_transactions.last
-            t.transaction.invoice.should == @invoice1
+            t.cn_transaction.invoice.should == @invoice1
           end
 
           context "Void the credit note" do
@@ -230,7 +230,7 @@ describe Uomi::CreditNote do
 
             it "should know which invoice the credit note has transacted against" do
               t = @credit_note.credit_note_credit_transactions.last
-              t.transaction.invoice.should == @invoice2
+              t.cn_transaction.invoice.should == @invoice2
             end
 
             context "Void the credit note" do
@@ -282,5 +282,5 @@ describe Uomi::CreditNote do
 
     end
   end
-  
+
 end
